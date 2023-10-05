@@ -1,5 +1,6 @@
 import express from 'express';
 import { BookRouter } from './routes/api/book.js';
+import { UserRouter } from './routes/api/user.js';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -15,6 +16,7 @@ const app = express();
 //allow form data
 app.use(express.urlencoded({extended: true}));
 app.use('/api/books', BookRouter);
+app.use('/api/users', UserRouter)
 
 //error handling middleware
 app.use((req, res) => {

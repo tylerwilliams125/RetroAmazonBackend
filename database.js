@@ -12,7 +12,7 @@ async function connect() {
     _db = client.db(dbName);
   }
   return _db;
-  
+
 }
 
 async function ping(){
@@ -51,7 +51,7 @@ async function updateBook(id, updatedBook){
 }
 async function deleteBook(id){
   const db = await connect();
-  const result = await db.collection("Book").findOne({_id: new ObjectId(id)});
+  const result = await db.collection("Book").deleteOne({_id: new ObjectId(id)});
   console.table(result);
   return result;
 }

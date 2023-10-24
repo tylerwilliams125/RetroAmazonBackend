@@ -2,8 +2,32 @@ import express from 'express';
 import debug from 'debug';
 const debugBook = debug('app:book.js');
 import {connect, getBooks, getBookById,updateBook, addBook, deleteBook} from '../../database.js';
+import { validId } from '../../middleware/validId.js';
+import Joi from 'joi';
+import { validBody } from '../../middleware/validBody.js';
+
 const router = express.Router();
 
+const newBookSchema = Joi.object({
+  isbn:Joi.string().trim().min(14),
+  title:Joi.string().trim().min(1).required(),
+  author:Joi.string().trim().min(1).max(50).required(),
+  genre:Joi.string().valid('Adventure', 'Action', 'Mystery', 'Drama','Horror'),
+  publication_year:Joi.number().integer().min(1900).max(2023).required(),
+  price:Joi.number().min(0).required(),
+  description:Joi.string().trim().min(1).required(),
+});
+
+const updateBookSchema = Joi.object({
+  isbn:Joi.string().trim().min(14),
+  title:Joi.string().trim().min(1),
+  author:Joi.string().trim().min(1).max(50),
+  genre:Joi.string().valid('Adventure', 'Action', 'Mystery', 'Drama','Horror'),
+  publication_year:Joi.number().integer().min(1900).max(2023),
+  price:Joi.number().min(0),
+  description:Joi.string().trim().min(1),
+
+})
 
 //get all books
 router.get('/list', async (req, res) => {
@@ -18,27 +42,29 @@ router.get('/list', async (req, res) => {
 });
 
 //get a book by the ID
-router.get('/:id', async (req, res) => {
-  const id = req.params.id;
+router.get('/:id', validId('id'), async (req, res) => {
+  const id = req.id;
   try{
     const book = await getBookById(id);
+  
     res.status(200).json(book);
+   
   }catch(err){
     res.status(500).json({error: err.stack});
   }
-  
+
 });
 
 //update a book by the ID
 //update can use a put or a post
-router.put('/update/:id', async (req, res) => {
-  const id = req.params.id;
+router.put('/update/:id', validId('id'), validBody(updateBookSchema), async (req, res) => {
+  const id = req.id;
   const updatedBook = req.body;
   if(updatedBook.price){
     updatedBook.price = parseFloat(updatedBook.price);
   }
 
- 
+
   try{
     const updateResult = await updateBook(id,updatedBook);
       if(updateResult.modifiedCount == 1){
@@ -52,9 +78,9 @@ router.put('/update/:id', async (req, res) => {
 });
 
 //add a new book to the array\
-router.post('/add', async (req, res) =>{
+router.post('/add', validBody(newBookSchema), async (req, res) =>{
   const newBook = req.body;
-  
+
   try{
     const dbResult = await addBook(newBook);
     if(dbResult.acknowledged == true){
@@ -82,7 +108,6 @@ router.delete('/delete/:id', async (req,res) => {
   }catch(err){
     res.status(500).json({error: err.stack});
   }
-  
 });
 
 

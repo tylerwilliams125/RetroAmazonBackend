@@ -34,10 +34,9 @@ app.use((err, req, res, next) => {
 app.get('/',(req,res) => {
     debugServer('Hello from the upgraded console.log()!');
     res.send('Hello From Amazon.com!');
-    
 });
 
-const port = process.env.PORT || 3005; 
+const port = process.env.PORT || 3005;
 
 // Listen on port 3003
 app.listen(3003, () => {

@@ -70,6 +70,14 @@ async function loginUser(user){
    return resultUser;
 }
 
+async function saveEdit(edit){
+  const db = await connect();
+  const result = await db.collection("Edit").insertOne(edit);
+  return result;
+}
+
+
+
 ping();
 
-export{connect, ping, getBooks, getBookById, addBook,updateBook,deleteBook, addUser,loginUser};
+export{connect, ping, getBooks, getBookById, addBook,updateBook,deleteBook, addUser,loginUser,saveEdit};
